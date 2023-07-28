@@ -174,6 +174,16 @@ def point_at_centerline_reward(state):
             return -dist
         else: return -.99
 
+def inside_track_reward(state):
+    x = state[0]
+    y = state[1]
+    current_xy = Point(x,y)
+
+    if current_xy.within(track):
+        return 1
+    else: return -1
+
+
 
 class ModelCar(gym.Env):
     metadata = {'render.modes': ['human']}
@@ -184,14 +194,12 @@ class ModelCar(gym.Env):
         self.use_vr = True
         self.act_interval = 500      # milliseconds
         self.state = None
-        self.rew_fn = point_at_centerline_reward
+        self.rew_fn = inside_track_reward
         self.steering = 0.0
         self.throttle = 0.0
         self.total_reward = 0.
         self.vae = torch.load('/home/pistar/Desktop/JetRacer/dataset/dataset/vae.pth')
-        self.log_file = open("deepracer_model_logs.csv", "a")
-        self.episd_rw_file = open("/home/pistar/Desktop/JetRacer/deepracer_epis_rw_logs.csv", "a")
-        self.total_steps = 5600
+        self.total_steps = 0
 
         if self.discrete:
             self.action_space = spaces.Discrete(4)
@@ -283,7 +291,7 @@ class ModelCar(gym.Env):
 
     @log
     def do_action(self, act):
-        send_action(self.conn, (act[0],0.8))
+        send_action(self.conn, (act[0],1))
         #if act[1]>=0: send_action(self.conn, act)
         #else: send_action(self.conn, (act[0],act[1]))
         return self.get_state()
