@@ -283,8 +283,9 @@ class ModelCar(gym.Env):
 
     @log
     def do_action(self, act):
-        if act[1]>=0: send_action(self.conn, act)
-        else: send_action(self.conn, (act[0],act[1]))
+        send_action(self.conn, (act[0],0.8))
+        #if act[1]>=0: send_action(self.conn, act)
+        #else: send_action(self.conn, (act[0],act[1]))
         return self.get_state()
     
 
@@ -360,13 +361,19 @@ class ModelCar(gym.Env):
         self.episode+=1
         self.ep_steps = 0
         self.total_reward = 0.0
-
         if self.state is None: 
             self.state = self.get_state()
         else:   # Reset vehicle with static policy to move back inside bounds
-            x, y, roll, pitch, yaw = self.get_pose()
+            x, y, _, _, _ = self.get_pose()
             current_x_y = Point(x,y)
-            
+            while not current_x_y.within(track):
+                self.do_action((0.0, 0.0))
+                time.sleep(0.5)
+                print('Out of bounds')
+
+                x, y, _, _, _ = self.get_pose()
+                current_x_y = Point(x,y)
+            '''
             while not current_x_y.within(bounds_map): 
                 x, y, roll, pitch, yaw = self.get_pose()
                 roll = roll%360
@@ -402,8 +409,8 @@ class ModelCar(gym.Env):
                         print('facing')
                         self.do_action((0.,-max_throttle))
                 time.sleep(0.5)
-                
-                '''
+            '''
+            '''
                 if ((angle-10) < roll) and (roll < (angle+10)):
                     print('facing')
                 else:
@@ -411,13 +418,15 @@ class ModelCar(gym.Env):
                 '''
 
                 #print('angle:', angle, 'roll:', roll, 'x:', x, 'y:', y)
-                print('Out of bounds')
-                '''
+                #print('Out of bounds')
+            '''
                 self.state = self.do_action((0.0, 0.0))
                 self.steering = 0.0
                 self.throttle = 0.0
                 time.sleep(3)
                 '''
+        print('in bounds...')
+        time.sleep(3)
         return self.state, {}
     
     

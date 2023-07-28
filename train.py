@@ -122,7 +122,7 @@ checkpoint_callback = CheckpointCallback(
 
 model =PPO("MlpPolicy", env, n_steps=8, learning_rate=0.01, stats_window_size=10)
 
-model = PPO.load("/home/pistar/Desktop/JetRacer/deepracer_model_1200_steps", env=env)
+#model = PPO.load("/home/pistar/Desktop/JetRacer/deepracer_model_1200_steps", env=env)
 
 model.learn(total_timesteps=10_000, callback=checkpoint_callback)
 model.save("/home/pistar/Desktop/JetRacer/DeepRacerTrack")
